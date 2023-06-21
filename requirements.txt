@@ -1,0 +1,17 @@
+astred[parsers]
+boto3
+cupy-cuda12x
+filelock
+sacremoses
+gdown
+git+https://github.com/BramVanroy/awesome-align.git@astred_compat
+jupyterlab
+numpy
+pandas
+pysub-parser
+requests
+scipy
+sentencepiece
+tokenizers>=0.5.2
+torch>=1.2.0
+tqdm
