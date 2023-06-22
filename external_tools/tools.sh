@@ -8,7 +8,7 @@ function laser_prep {
         bash ./nllb/download_models.sh ace_Latn
         bash install_external_tools.sh
         sed -i 's/model_dir=""/model_dir=$LASER/g' ./tasks/embed/embed.sh
-        sed -i 's/over_write=False/over_write=True/g' ./source/embed.py
+        cp ./0_replacement_code/embed.py ./LASER/source/embed.py
     cd ..
 }
 
