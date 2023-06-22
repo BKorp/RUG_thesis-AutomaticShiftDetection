@@ -14,7 +14,7 @@ class sentAligner:
                               shell=True,
                               capture_output=True,
                               text=True,
-                              env=env).stdout
+                              env=env)
 
 
 
@@ -86,9 +86,10 @@ class newAligner(sentAligner):
     def exports(self):
         ''''''
         self.env = {
-            'LASER': self.term_run('realpath "../../external_tools/LASER"'),
-            'DATA': self.term_run('realpath "../../data"'),
-            'VECALIGN': self.term_run('realpath "../../external_tools/vecalign"'),
+            'LASER': Path('../../external_tools/LASER').resolve().as_posix(),
+            'DATA': Path('../../data').resolve().as_posix(),
+            'VECALIGN': Path('../../external_tools/vecalign').resolve().as_posix(),
+            'ENVPY': Path('../../env/bin/activate').resolve().as_posix(),
         }
 
     def retrieve_embedding(self, en_inp, nl_inp):
@@ -98,19 +99,25 @@ class newAligner(sentAligner):
             tempfile.NamedTemporaryFile('w+t', encoding='utf-8') as nl,
             tempfile.NamedTemporaryFile('w+t', encoding='utf-8') as overlaps_en,
             tempfile.NamedTemporaryFile('w+t', encoding='utf-8') as overlaps_nl,
-            tempfile.NamedTemporaryFile('w+t', encoding='utf-8') as overlaps_en_emb,
-            tempfile.NamedTemporaryFile('w+t', encoding='utf-8') as overlaps_nl_emb
+            tempfile.NamedTemporaryFile('w+b') as overlaps_en_emb,
+            tempfile.NamedTemporaryFile('w+b') as overlaps_nl_emb
         ):
             en.write('\n'.join(en_inp))
             en.seek(0)
             nl.write('\n'.join(nl_inp))
             nl.seek(0)
 
-            self.term_run(f'$VECALIGN/overlap.py -i "{en}" -o "{overlaps_en}" -n 10', self.env)
-            self.term_run(f'$VECALIGN/overlap.py -i "{nl}" -o "{overlaps_nl}" -n 10', self.env)
+            out = self.term_run(f'source $ENVPY; python $VECALIGN/overlap.py -i "{en.name}" -o "{overlaps_en.name}" -n 10', self.env)
+            out = self.term_run(f'source $ENVPY; python $VECALIGN/overlap.py -i "{nl.name}" -o "{overlaps_nl.name}" -n 10', self.env)
 
-            self.term_run(f'$LASER/tasks/embed/embed.sh "{overlaps_en}" "{overlaps_en_emb}"', self.env)
-            self.term_run(f'$LASER/tasks/embed/embed.sh "{overlaps_nl}" "{overlaps_nl_emb}"', self.env)
+            # with open('overlaps_en', 'w', encoding='utf-8') as f_en, open('overlaps_nl', 'w', encoding='utf-8') as f_nl:
+            #     f_en.write(overlaps_en.read())
+            #     f_nl.write(overlaps_nl.read())
+
+            out = self.term_run(f'source $ENVPY; $LASER/tasks/embed/embed.sh "{overlaps_en.name}" "{overlaps_en_emb.name}"', self.env)
+            # print(out.stdout)
+            out = self.term_run(f'source $ENVPY; $LASER/tasks/embed/embed.sh "{overlaps_nl.name}" "{overlaps_nl_emb.name}"', self.env)
+            # print(out.stdout)
 
             return self.vecalign_runner(en, nl,
                                         overlaps_en, overlaps_nl,
@@ -128,19 +135,24 @@ class newAligner(sentAligner):
     ):
         ''''''
         vecalign = self.term_run(
+            'source $ENVPY;'
             '$VECALIGN/vecalign.py '
             f'--alignment_max_size {alignment_max_size} '
-            f'--src "{en}" '
-            f'--tgt "{nl}" '
-            f'--src_embed "{overlaps_en}" "{overlaps_en_emb}" '
+            f'--src "{en.name}" '
+            f'--tgt "{nl.name}" '
+            f'--src_embed "{overlaps_en.name}" "{overlaps_en_emb.name}" '
             f'--print_aligned_text '
-            f'--tgt_embed "{overlaps_nl}" "{overlaps_nl_emb}"',
+            f'--tgt_embed "{overlaps_nl.name}" "{overlaps_nl_emb.name}"',
             self.env
-        ).splitlines()
+        )
+        # ).splitlines()
 
-        return vecalign
+        # print(vecalign.stderr)
+        # print(vecalign.stdout)
 
-    def aligner(
+        return vecalign.stdout
+
+    def __call__(
         self,
         en_inp,
         nl_inp,
