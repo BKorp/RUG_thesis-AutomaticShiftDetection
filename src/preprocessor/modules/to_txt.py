@@ -97,9 +97,10 @@ class subtitlerNew(subtitler):
                         # Example from assassin's creed:
                         # [Massive Attack's "He Says He Needs Me" playing]
             r'\([ A-Z]*\)',  # Remove background sounds
+            r'[\(\[].*?[\)\]]',
                              # Example taken from saving private ryan
                              # (GUNFIRE), (BODY FALLS), etc.
-            r'^[ A-Z]*: *',  # Remove speaker
+            # r'^[ A-Z]*: *',  # Remove speaker
                              # Example taken from saving private ryan
                              # MAN: , GENERAL MARSHALL: , etc.
         ]
