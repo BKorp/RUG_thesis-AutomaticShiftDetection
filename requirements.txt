@@ -1,4 +1,4 @@
-astred[parsers]
+astred[stanza]
 boto3
 cupy-cuda12x
 Cython
@@ -6,7 +6,9 @@ fairseq
 filelock
 sacremoses
 gdown
+gensim
 git+https://github.com/BramVanroy/awesome-align.git@astred_compat
+jenkspy
 jupyterlab
 mcerp
 numpy
@@ -15,6 +17,7 @@ pysub-parser
 requests
 scipy
 sentencepiece
+svgling
 tabulate
 tokenizers>=0.5.2
 torch>=1.2.0
