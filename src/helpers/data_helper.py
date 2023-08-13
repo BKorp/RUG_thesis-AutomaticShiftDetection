@@ -6,7 +6,9 @@ import re
 
 @dataclass
 class baseFunctionsData:
+    '''A class containing the base functions for the data classes.'''
     def read_writer(self, fname, mode='r', data=None):
+        '''Returns a file or writes to a file.'''
         with open(fname, mode, encoding='utf-8') as f:
             if mode == 'r':
                 inp = f.read().splitlines()
@@ -17,9 +19,13 @@ class baseFunctionsData:
             return inp
 
     def sort_globber(self, path, pattern):
+        '''Returns a sorted list from a globber for a given path
+        and pattern.
+        '''
         return sorted(path.glob(pattern))[0]
 
     def wa_converter(self, wa, sa, fname):
+        '''Returns a list of new word alignments.'''
         new_wa = [
             sorted([list(map(int, y.split('-'))) for y in x])
             for x in [i.split(' ') for i in wa]
@@ -46,7 +52,7 @@ class baseFunctionsData:
 
 @dataclass
 class origData(baseFunctionsData):
-    ''''''
+    '''A dataclass for the original data.'''
     path: Path
     name: str
 
@@ -64,22 +70,32 @@ class origData(baseFunctionsData):
 
     def __post_init__(self):
         ''''''
-        self.en_nl = self.read_writer(self.sort_globber(self.path, f'txt/*_en_nl.txt'))
-        self.en_mt = self.read_writer(self.sort_globber(self.path, f'txt/*_ht_mt.txt'))
-        self.wa_en_nl = self.read_writer(self.sort_globber(self.path, f'wa/*_en_nl.txt'))
-        self.wa_en_mt = self.read_writer(self.sort_globber(self.path, f'wa/*_ht_mt.txt'))
+        self.en_nl = self.read_writer(
+            self.sort_globber(self.path, f'**/txt/*_en_nl.txt')
+        )
+        self.en_mt = self.read_writer(
+            self.sort_globber(self.path, f'**/txt/*_ht_mt.txt')
+        )
+        self.wa_en_nl = self.read_writer(
+            self.sort_globber(self.path, f'**/wa/*_en_nl.txt')
+        )
+        self.wa_en_mt = self.read_writer(self.sort_globber(
+            self.path, f'**/wa/*_ht_mt.txt')
+        )
 
         self.en = [i.split(' ||| ')[0] for i in self.en_nl]
         self.nl = [i.split(' ||| ')[-1] for i in self.en_nl]
         self.mt = [i.split(' ||| ')[-1] for i in self.en_mt]
 
-        self.w_pair_en_nl = self.wa_converter(self.wa_en_nl, self.en_nl, self.name)
-        self.w_pair_en_mt = self.wa_converter(self.wa_en_mt, self.en_mt, self.name)
+        self.w_pair_en_nl = self.wa_converter(self.wa_en_nl,
+                                              self.en_nl, self.name)
+        self.w_pair_en_mt = self.wa_converter(self.wa_en_mt,
+                                              self.en_mt, self.name)
 
 
 @dataclass
 class newrunData(baseFunctionsData):
-    ''''''
+    '''A dataclass for the new data.'''
     path: Path
     name: str
 
@@ -93,28 +109,42 @@ class newrunData(baseFunctionsData):
 
     def __post_init__(self):
         ''''''
-        self.en_nl = self.read_writer(self.sort_globber(self.path, f'txt/*_en-nl.lfa'))
-        self.wa_en_nl = self.read_writer(self.sort_globber(self.path, f'wa/*_en-nl.wa'))
+        # self.en_nl = self.read_writer(
+        #     self.sort_globber(self.path, f'txt/*_en-nl.lfa')
+        # )
+        self.en_nl = self.read_writer(
+            self.sort_globber(self.path, f'**/txt/*_en-nl_t.lfa')
+        )
+        self.wa_en_nl = self.read_writer(
+            self.sort_globber(self.path, f'**/wa/*_en-nl.wa')
+        )
 
-        self.en_nl = [i for i in self.en_nl if '' not in re.sub(' +', ' ', i).split(' ||| ')]
+        self.en_nl = [i for i in self.en_nl
+                      if '' not in re.sub(' +', ' ', i).split(' ||| ')]
         self.wa_en_nl = [i for i in self.wa_en_nl if i != '']
 
         self.en = [i.split(' ||| ')[0] for i in self.en_nl]
         self.nl = [i.split(' ||| ')[-1] for i in self.en_nl]
 
-        self.w_pair_en_nl = self.wa_converter(self.wa_en_nl, self.en_nl, self.name)
+        self.w_pair_en_nl = self.wa_converter(self.wa_en_nl,
+                                              self.en_nl, self.name)
 
 
 class dataPrepper:
-    def setup(self, path_orig=Path('../data/0_original/'), path_newrun=('../data/1_rerun/')):
+    '''A class made to prepare data.'''
+    def setup(self, path_orig=Path('../data/0_original/'),
+              path_newrun=Path('../data/1_rerun/')):
+        '''Setup the dataprepper.'''
         self.path_orig = path_orig
         self.path_newrun = path_newrun
 
         return self.prep('orig'), self.prep('newrun')
 
     def help_info(self):
+        '''Return help info about the dataprepper.'''
         return (
-            'These object structures contain all the data that is used in the thesis. '
+            'These object structures contain a chunk of the data '
+            'that is used in the thesis. '
             '\n\nIt contains the following data structure: '
             '\ndata root(root object name, for example, orig).'
             'movie_id(e.g. ac01).data_type(e.g. en). '
@@ -126,11 +156,16 @@ class dataPrepper:
             '\n\nen: The English (en) sentences'
             '\nnl: The Dutch (nl) sentences'
             '\nmt: The Machine translation Dutch (mt) sentences'
-            '\n\nw_pair_en_nl: The word pairs for en to nl based on the word alignment'
-            '\nw_pair_en_mt: The word pairs for en to mt based on the word alignment'
+            '\n\nw_pair_en_nl: The word pairs for en to nl based on '
+            'the word alignment'
+            '\nw_pair_en_mt: The word pairs for en to mt based on '
+            'the word alignment'
         )
 
     def prep(self, variant):
+        '''Return a simplenamespace for the given
+        variant (orig or newrun).
+        '''
         if variant == 'orig':
             cur_path = self.path_orig
         elif variant == 'newrun':
