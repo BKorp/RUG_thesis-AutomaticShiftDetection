@@ -1,3 +1,5 @@
+# Taken from van der Heden, not written by me~André Korporaal
+
 import argparse
 import codecs
 import math
@@ -7,6 +9,7 @@ import re
 
 SUPPORTED_EXTENSIONS = [".xml", ".vtt"]
 
+# Taken from van der Heden, not written by me~André Korporaal
 
 def leading_zeros(value, digits=2):
     value = "000000" + str(value)
@@ -28,11 +31,10 @@ def convert_time(raw_time):
 
 
 def xml_id_display_align_before(text):
-    """
-    displayAlign="before" means the current sub will be displayed on top.
+    '''displayAlign="before" means the current sub will be displayed on top.
     That is and not at bottom. We check what's the xml:id associated to it
     to have an {\an8} position tag in the output file.
-    """
+    '''
     align_before_re = re.compile(u'<region.*tts:displayAlign=\"before\".*xml:id=\"(.*)\"/>')
     has_align_before = re.search(align_before_re, text)
     if has_align_before:
@@ -187,3 +189,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+# Taken from van der Heden, not written by me~André Korporaal
