@@ -1,9 +1,11 @@
+alive-progress
 astred[stanza]
 boto3
 cupy-cuda12x
 Cython
 fairseq
 filelock
+seaborn
 sacremoses
 gdown
 gensim
@@ -15,6 +17,7 @@ numpy
 pandas
 pysub-parser
 requests
+scikit-learn
 scipy
 sentencepiece
 svgling
@@ -22,4 +25,5 @@ tabulate
 tokenizers>=0.5.2
 torch>=1.2.0
 transliterate
+transformers
 tqdm
