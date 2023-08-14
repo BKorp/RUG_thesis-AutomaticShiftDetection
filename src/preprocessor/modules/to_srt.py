@@ -1,4 +1,5 @@
 # Taken from van der Heden, not written by me~André Korporaal
+# Originally from https://github.com/isaacbernat/netflix-to-srt
 
 import argparse
 import codecs
@@ -10,6 +11,7 @@ import re
 SUPPORTED_EXTENSIONS = [".xml", ".vtt"]
 
 # Taken from van der Heden, not written by me~André Korporaal
+# Originally from https://github.com/isaacbernat/netflix-to-srt
 
 def leading_zeros(value, digits=2):
     value = "000000" + str(value)
@@ -192,3 +194,4 @@ if __name__ == '__main__':
 
 
 # Taken from van der Heden, not written by me~André Korporaal
+# Originally from https://github.com/isaacbernat/netflix-to-srt
