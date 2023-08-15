@@ -12,3 +12,5 @@ cd ..
 cd external_tools
 bash tools.sh
 cd ..
+
+mkdir results
